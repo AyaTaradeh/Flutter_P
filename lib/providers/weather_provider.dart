@@ -81,7 +81,6 @@ class WeatherProvider extends ChangeNotifier {
     }
   }
 
-  /// 📍 جلب الطقس حسب الموقع الحالي (دقيق)
   Future<void> fetchByLocation() async {
     try {
       isLoadingCurrent = true;

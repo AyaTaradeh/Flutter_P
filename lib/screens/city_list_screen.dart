@@ -11,7 +11,7 @@ class CityListScreen extends StatefulWidget {
 
 class _CityListScreenState extends State<CityListScreen> {
   final List<String> sampleCities = [
-    'London', 'Paris', 'New York', 'Tokyo', 'Ramallah', 'Gaza', 'Jerusalem', 'Amman'
+    'Hebron', 'Nablus', 'Bethlehem', 'Jenin', 'Ramallah', 'Gaza', 'Jerusalem', 'Jericho'
   ];
   String filter = '';
 
@@ -48,18 +48,14 @@ class _CityListScreenState extends State<CityListScreen> {
                   trailing: ElevatedButton(
                     child: const Text('Show'),
                     onPressed: () async {
-                      // ✅ 1. احفظ الـ context فور الدخول (قبل أي await)
                       final safeContext = context;
 
-                      // ✅ 2. نفّذ الطلبات غير المتزامنة
                       await provider.fetchCurrent(city);
                       await provider.fetch3Day(city);
                       await provider.fetchHourly(city);
 
-                      // ✅ 3. تأكد أن الـ context لا يزال صالحًا (اختياري لكن موصى به)
                       if (!safeContext.mounted) return;
 
-                      // ✅ 4. استخدم الـ safeContext (ليس context الأصلي)
                       showModalBottomSheet(
                         context: safeContext,
                         builder: (_) {
@@ -95,7 +91,7 @@ class _CityListScreenState extends State<CityListScreen> {
                                 ElevatedButton(
                                   child: const Text('More details'),
                                   onPressed: () {
-                                    Navigator.pop(safeContext); // استخدم safeContext هنا أيضًا
+                                    Navigator.pop(safeContext); 
                                     Navigator.pushNamed(
                                       safeContext,
                                       '/detail3',
