@@ -16,16 +16,16 @@ class CurrentWeather {
   });
 
   factory CurrentWeather.fromApi(Map<String, dynamic> json) {
-    // assuming response is from /current.json?key=...&q=...
-    final location = json['location'];
-    final current = json['current'];
+    final location = json['location'] ?? {};
+    final current = json['current'] ?? {};
+
     return CurrentWeather(
       cityName: location['name'] ?? '',
-      tempC: (current['temp_c'] as num).toDouble(),
-      conditionText: current['condition']['text'] ?? '',
-      iconUrl: 'https:${current['condition']['icon']}',
-      lat: (location['lat'] ?? 0).toDouble(),
-      lon: (location['lon'] ?? 0).toDouble(),
+      tempC: ((current['temp_c'] ?? 0) as num).toDouble(),
+      conditionText: current['condition']?['text'] ?? '',
+      iconUrl: 'https:${current['condition']?['icon'] ?? ''}',
+      lat: ((location['lat'] ?? 0) as num).toDouble(),
+      lon: ((location['lon'] ?? 0) as num).toDouble(),
     );
   }
 }
@@ -46,13 +46,14 @@ class ForecastDay {
   });
 
   factory ForecastDay.fromApi(Map<String, dynamic> json) {
-    final day = json['day'];
+    final day = json['day'] ?? {};
+
     return ForecastDay(
       date: json['date'] ?? '',
-      maxTemp: (day['maxtemp_c'] as num).toDouble(),
-      minTemp: (day['mintemp_c'] as num).toDouble(),
-      conditionText: day['condition']['text'] ?? '',
-      iconUrl: 'https:${day['condition']['icon']}',
+      maxTemp: ((day['maxtemp_c'] ?? 0) as num).toDouble(),
+      minTemp: ((day['mintemp_c'] ?? 0) as num).toDouble(),
+      conditionText: day['condition']?['text'] ?? '',
+      iconUrl: 'https:${day['condition']?['icon'] ?? ''}',
     );
   }
 }
@@ -62,6 +63,7 @@ class HourlyForecast {
   final double tempC;
   final String conditionText;
   final String iconUrl;
+
   HourlyForecast({
     required this.time,
     required this.tempC,
@@ -72,9 +74,9 @@ class HourlyForecast {
   factory HourlyForecast.fromApi(Map<String, dynamic> json) {
     return HourlyForecast(
       time: json['time'] ?? '',
-      tempC: (json['temp_c'] as num).toDouble(),
-      conditionText: json['condition']['text'] ?? '',
-      iconUrl: 'https:${json['condition']['icon']}',
+      tempC: ((json['temp_c'] ?? 0) as num).toDouble(),
+      conditionText: json['condition']?['text'] ?? '',
+      iconUrl: 'https:${json['condition']?['icon'] ?? ''}',
     );
   }
 }

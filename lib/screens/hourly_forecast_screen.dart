@@ -1,48 +1,90 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/weather_provider.dart';
-import 'package:intl/intl.dart';
 
 class HourlyForecastScreen extends StatefulWidget {
   const HourlyForecastScreen({super.key});
+
   @override
-  State<HourlyForecastScreen> createState() => _HourlyForecastScreenState();
+  State<HourlyForecastScreen> createState() =>
+      _HourlyForecastScreenState();
 }
 
-class _HourlyForecastScreenState extends State<HourlyForecastScreen> {
+class _HourlyForecastScreenState
+    extends State<HourlyForecastScreen> {
+  bool _hasFetched = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final city = ModalRoute.of(context)!.settings.arguments as String?;
-    if (city != null) {
-      Provider.of<WeatherProvider>(context, listen: false).fetchHourly(city);
+
+    if (!_hasFetched) {
+      final query =
+          ModalRoute.of(context)?.settings.arguments as String?;
+
+      if (query != null && query.isNotEmpty) {
+        Provider.of<WeatherProvider>(
+          context,
+          listen: false,
+        ).fetchHourly(query);
+
+        _hasFetched = true;
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<WeatherProvider>(context);
+
+    if (provider.isLoadingHourly) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (provider.error.isNotEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Hourly Forecast')),
+        body: Center(
+          child: Text(
+            provider.error,
+            style: const TextStyle(color: Colors.red),
+          ),
+        ),
+      );
+    }
+
+    final data = provider.hourly;
+
+    if (data == null || data.isEmpty) {
+      return const Scaffold(
+        body: Center(child: Text('No hourly data')),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Hourly Forecast')),
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : provider.hourly == null
-              ? const Center(child: Text('No data'))
-              : ListView.builder(
-                  itemCount: provider.hourly!.length,
-                  itemBuilder: (context, idx) {
-                    final h = provider.hourly![idx];
-                    final time = h.time;
-                    // show only hour portion if format includes space
-                    final displayTime = time;
-                    return ListTile(
-                      leading: Image.network(h.iconUrl),
-                      title: Text('$displayTime'),
-                      subtitle: Text(h.conditionText),
-                      trailing: Text('${h.tempC.toStringAsFixed(0)}°C'),
-                    );
-                  },
-                ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: data.length,
+        itemBuilder: (context, index) {
+          final h = data[index];
+          final time =
+              h.time.contains(' ') ? h.time.split(' ')[1] : h.time;
+
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            child: ListTile(
+              leading: Image.network(h.iconUrl, width: 40),
+              title: Text(time),
+              subtitle: Text(h.conditionText),
+              trailing:
+                  Text('${h.tempC.toStringAsFixed(0)}°C'),
+            ),
+          );
+        },
+      ),
     );
   }
 }
